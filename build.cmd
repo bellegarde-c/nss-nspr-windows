@@ -2,7 +2,7 @@
 
 :: configure following 2 vars to make it work:
 :: 1. specify the path where vcvars*.bat files are located
-SET "VsPath=C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build"
+SET "VsPath=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build"
 :: 2. specify the path where you installed the Mozilla Build suite
 ::    (https://wiki.mozilla.org/MozillaBuild)
 SET "MozBuild=c:\mozilla-build"
