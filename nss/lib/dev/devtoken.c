@@ -53,13 +53,6 @@ nssToken_Remove(
     nssTokenObjectCache_Clear(tok->cache);
 }
 
-NSS_IMPLEMENT void
-NSSToken_Destroy(
-    NSSToken *tok)
-{
-    (void)nssToken_Destroy(tok);
-}
-
 NSS_IMPLEMENT NSSToken *
 nssToken_AddRef(
     NSSToken *tok)
@@ -260,7 +253,7 @@ find_objects(
     nssSession *session = (sessionOpt) ? sessionOpt : tok->defaultSession;
 
     /* Don't ask the module to use an invalid session handle. */
-    if (!session || session->handle == CK_INVALID_SESSION) {
+    if (!session || session->handle == CK_INVALID_HANDLE) {
         ckrv = CKR_SESSION_HANDLE_INVALID;
         goto loser;
     }
@@ -996,8 +989,9 @@ sha1_hash(NSSItem *input, NSSItem *output)
     NSSToken *token = PK11Slot_GetNSSToken(internal);
     ap = NSSAlgorithmAndParameters_CreateSHA1Digest(NULL);
     (void)nssToken_Digest(token, NULL, ap, input, output, NULL);
-    PK11_FreeSlot(token->pk11slot);
     nss_ZFreeIf(ap);
+    (void)nssToken_Destroy(token);
+    PK11_FreeSlot(internal);
 }
 
 static void
@@ -1008,8 +1002,9 @@ md5_hash(NSSItem *input, NSSItem *output)
     NSSToken *token = PK11Slot_GetNSSToken(internal);
     ap = NSSAlgorithmAndParameters_CreateMD5Digest(NULL);
     (void)nssToken_Digest(token, NULL, ap, input, output, NULL);
-    PK11_FreeSlot(token->pk11slot);
     nss_ZFreeIf(ap);
+    (void)nssToken_Destroy(token);
+    PK11_FreeSlot(internal);
 }
 
 static CK_TRUST
@@ -1124,7 +1119,7 @@ nssToken_FindTrustForCertificate(
     nssCryptokiObject *object = NULL, **objects;
 
     /* Don't ask the module to use an invalid session handle. */
-    if (!session || session->handle == CK_INVALID_SESSION) {
+    if (!session || session->handle == CK_INVALID_HANDLE) {
         PORT_SetError(SEC_ERROR_NO_TOKEN);
         return object;
     }
@@ -1206,7 +1201,7 @@ nssToken_FindCRLsBySubject(
     nssSession *session = sessionOpt ? sessionOpt : token->defaultSession;
 
     /* Don't ask the module to use an invalid session handle. */
-    if (!session || session->handle == CK_INVALID_SESSION) {
+    if (!session || session->handle == CK_INVALID_HANDLE) {
         PORT_SetError(SEC_ERROR_NO_TOKEN);
         return objects;
     }
@@ -1262,7 +1257,7 @@ nssToken_Digest(
     nssSession *session = (sessionOpt) ? sessionOpt : tok->defaultSession;
 
     /* Don't ask the module to use an invalid session handle. */
-    if (!session || session->handle == CK_INVALID_SESSION) {
+    if (!session || session->handle == CK_INVALID_HANDLE) {
         PORT_SetError(SEC_ERROR_NO_TOKEN);
         return rvItem;
     }
@@ -1328,7 +1323,7 @@ nssToken_BeginDigest(
     nssSession *session = (sessionOpt) ? sessionOpt : tok->defaultSession;
 
     /* Don't ask the module to use an invalid session handle. */
-    if (!session || session->handle == CK_INVALID_SESSION) {
+    if (!session || session->handle == CK_INVALID_HANDLE) {
         PORT_SetError(SEC_ERROR_NO_TOKEN);
         return PR_FAILURE;
     }
@@ -1350,7 +1345,7 @@ nssToken_ContinueDigest(
     nssSession *session = (sessionOpt) ? sessionOpt : tok->defaultSession;
 
     /* Don't ask the module to use an invalid session handle. */
-    if (!session || session->handle == CK_INVALID_SESSION) {
+    if (!session || session->handle == CK_INVALID_HANDLE) {
         PORT_SetError(SEC_ERROR_NO_TOKEN);
         return PR_FAILURE;
     }
@@ -1378,7 +1373,7 @@ nssToken_FinishDigest(
     nssSession *session = (sessionOpt) ? sessionOpt : tok->defaultSession;
 
     /* Don't ask the module to use an invalid session handle. */
-    if (!session || session->handle == CK_INVALID_SESSION) {
+    if (!session || session->handle == CK_INVALID_HANDLE) {
         PORT_SetError(SEC_ERROR_NO_TOKEN);
         return NULL;
     }
@@ -1457,7 +1452,7 @@ nssToken_TraverseCertificates(
     nssSession *session = (sessionOpt) ? sessionOpt : token->defaultSession;
 
     /* Don't ask the module to use an invalid session handle. */
-    if (!session || session->handle == CK_INVALID_SESSION) {
+    if (!session || session->handle == CK_INVALID_HANDLE) {
         PORT_SetError(SEC_ERROR_NO_TOKEN);
         return PR_FAILURE;
     }
